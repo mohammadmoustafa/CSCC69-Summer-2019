@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+   <link rel="stylesheet" href="../../styles.css" type="text/css">
+       <title>
+            CSCC69H: File system Tutorials
+       </title>
+   </head>
+
+
+  <body>
+      
+<div class="page-header">
+  <h1>Tutorial Exercise  - Ext2 file system structure </h1>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+
+<h2>Introduction</h2>
+
+<p>For Assignment 3, you will be manipulating an Ext2 file system image. 
+The next few exercises are intended to help you get started on the assignment 
+by helping you understand the structure of the file system.
+Please start early to fully take advantage of the tutorial time to ask questions.
+</p>
+
+<!--p>
+There will be no lecture exercise this week, to give you more time to work 
+on the two tutorial exercises for this week, in order to get a headstart early 
+on A3. 
+</p-->
+
+<!--p>You may work in pairs for this exercise. MarkUs will only create the 
+appropriate directory in your repository when you log into MarkUs and 
+either create your group, or declare that you will work alone.  
+The groups will get a new shared repository, and the students working 
+solo may also get a new repository.  
+Please log into MarkUs well before the deadline to take these steps.  
+(If you create the directory manually in svn, then MarkUs won't know 
+about it and we won't be able to see your work.)
+</p-->
+
+<!--p>It is your responsibility to log into MarkUs <em>before</em> the 
+exercise deadline to ensure that you know where to commit your work, 
+and so that MarkUs can connect your work to the grading system.
+</p-->
+
+<!--p>If you work with different partners for this exercise and later for A3, 
+then please make a note in a README file in A3 saying who you worked with 
+on the exercises in case the code for some parts looks too similar.</p-->
+
+<h2>Task 1</h2>
+
+<p>Please read the Assignment 3 handout.  It has links to some resources 
+that you will need to read to fully understand the ext2 structure,
+especially sections "Learning about the Filesystem" and "Mounting a filesystem".</p>
+
+<p>You are given two files as starter code:</p>
+<ul>
+    <li><a href="./ext2.h">ext2.h</a></li>
+    <li><a href="./readimage.c">readimage.c</a></li>
+</ul>
+
+<p>There are also a bunch of disk images available to you:</p>
+<ul>
+    <li><a href="./images/emptydisk.img">emptydisk</a>: An empty virtual disk.</li>
+    <li><a href="./images/onefile.img">onefile</a>: A single text file has been added to emptydisk.</li>
+    <li><a href="./images/deletedfile.img">deletedfile</a>: The file from onefile has been removed.</li>
+    <li><a href="./images/onedirectory.img">onedirectory</a>: A single directory containing a text file has been added to emptydisk.</li>
+    <li><a href="./images/hardlink.img">hardlink</a>: A hard link to the textfile in onedirectory was added.</li>
+    <li><a href="./images/deleteddirectory.img">deleteddirectory</a>: A recursive remove was used to remove the directory and file from onedirectory.</li>
+    <li><a href="./images/twolevel.img">twolevel</a>: The root directory contains a directory called <code>level1</code> and a file called <code>afile</code>. <code>level1</code> contains a directory called <code>level2</code>, and <code>level2</code> contains a file called <code>bfile</code>.</li>
+    <li><a href="./images/largefile.img">largefile</a>: A file larger than 13KB (13440 bytes) is in the root directory.  This file requires the single indirect block in the inode.</li>
+</ul>
+
+<p>Note that <code>readimage</code> uses <code>mmap</code> to map 
+the disk image file into memory.  The superblock is in the second 
+block on the disk starting at byte 1024, so we can interpret these 
+bytes as the super block struct.</p>
+
+<p>You should also look at these bytes of the one of the images, 
+for example emptydisk.img by running <code>xxd emptydisk.img > emptydisk.txt</code>
+and using an editor to view the contents of the file. Try the following:</p>
+<ul>
+    <li>Figure out where each block starts.</li>
+    <li>See what the inode bit map and block bitmaps look like.</li>
+    <li>Find other non-empty blocks to see if you can see what might be in them.</li>
+</ul>
+
+<p>Your task for this exercise is simple.  Add to <code>readimage</code> 
+to print out the following fields from the block group descriptor.  
+For <code>emptydisk.img</code> your output should look <em>exactly</em> 
+like the following. In other words, we should be able to use <code>diff</code> 
+to compare your output to this and see that it is identical.</p>
+<pre>
+Inodes: 32
+Blocks: 128
+Block group:
+    block bitmap: 3
+    inode bitmap: 4
+    inode table: 5
+    free blocks: 105
+    free inodes: 21
+    used_dirs: 2
+</pre>
+
+
+<h2>Task2</h2>
+
+<p>Using the same code you wrote, add the code to print out
+the inode and block bitmaps, and the inodes. </p>
+
+<p>For <code>emptydisk.img</code> your output should <em>exactly</em>
+match the following. In other words, we should be able to use
+<code>diff</code> to compare your output to this and see that
+it is identical.</p>
+<pre>
+Inodes: 32
+Blocks: 128
+Block group:
+    block bitmap: 3
+    inode bitmap: 4
+    inode table: 5
+    free blocks: 105
+    free inodes: 21
+    used_dirs: 2
+Block bitmap: 11111111 11111111 11111100 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001
+Inode bitmap: 11111111 11100000 00000000 00000000
+
+Inodes:
+[2] type: d size: 1024 links: 3 blocks: 2
+[2] Blocks:  9
+</pre>
+
+<p>For <code>onefile.img</code> your output should match the following:</p>
+<pre>
+Inodes: 32
+Blocks: 128
+Block group:
+    block bitmap: 3
+    inode bitmap: 4
+    inode table: 5
+    free blocks: 104
+    free inodes: 20
+    used_dirs: 2
+Block bitmap: 11111111 11111111 11111100 00000000 00100000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001
+Inode bitmap: 11111111 11110000 00000000 00000000
+
+Inodes:
+[2] type: d size: 1024 links: 3 blocks: 2
+[2] Blocks:  9
+[12] type: f size: 128 links: 1 blocks: 2
+[12] Blocks:  35
+</pre>
+
+<h2>Task 3</h2>
+
+<p>Your final task in this series of exercises is to print the directory
+block contents. While you are doing this, you should work out how the
+directory structure creates a linked list of directory entries by using
+<code>rec_len</code> to show where the next directory entry begins.
+Note that <code>rec_len</code> in the last directory entry takes you
+to the end of the block.</p>
+
+<p>For <code>emptydisk.img</code> your output should <em>exactly</em>
+match the following. In other words, we should be able to use <code>diff</code>
+to compare your output to this and see that it is identical.</p>
+<pre>
+Inodes: 32
+Blocks: 128
+Block group:
+    block bitmap: 3
+    inode bitmap: 4
+    inode table: 5
+    free blocks: 105
+    free inodes: 21
+    used_dirs: 2
+Block bitmap: 11111111 11111111 11111100 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001
+Inode bitmap: 11111111 11100000 00000000 00000000
+
+Inodes:
+[2] type: d size: 1024 links: 3 blocks: 2
+[2] Blocks:  9
+
+Directory Blocks:
+   DIR BLOCK NUM: 9 (for inode 2)
+Inode: 2 rec_len: 12 name_len: 1 type= d name=.
+Inode: 2 rec_len: 12 name_len: 2 type= d name=..
+Inode: 11 rec_len: 1000 name_len: 10 type= d name=lost+found
+</pre>
+
+<p>For <code>twolevel.img</code> your output should match the following:</p>
+<pre>
+
+Inodes: 128
+Blocks: 128
+Block group:
+    block bitmap: 3
+    inode bitmap: 4
+    inode table: 5
+    free blocks: 91
+    free inodes: 113
+    used_dirs: 4
+Block bitmap: 11111111 11111111 11111111 11111111 11100000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000011 
+Inode bitmap: 11111111 11111110 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+
+Inodes:
+[2] type: d size: 1024 links: 4 blocks: 2
+[2] Blocks:  21
+[12] type: d size: 1024 links: 3 blocks: 2
+[12] Blocks:  127
+[14] type: d size: 1024 links: 2 blocks: 2
+[14] Blocks:  35
+
+Directory Blocks:
+   DIR BLOCK NUM: 21 (for inode 2)
+Inode: 2 rec_len: 12 name_len: 1 type= d name=.
+Inode: 2 rec_len: 12 name_len: 2 type= d name=..
+Inode: 11 rec_len: 20 name_len: 10 type= d name=lost+found
+Inode: 12 rec_len: 16 name_len: 6 type= d name=level1
+Inode: 13 rec_len: 964 name_len: 5 type= f name=afile
+   DIR BLOCK NUM: 127 (for inode 12)
+Inode: 12 rec_len: 12 name_len: 1 type= d name=.
+Inode: 2 rec_len: 12 name_len: 2 type= d name=..
+Inode: 14 rec_len: 1000 name_len: 6 type= d name=level2
+   DIR BLOCK NUM: 35 (for inode 14)
+Inode: 14 rec_len: 12 name_len: 1 type= d name=.
+Inode: 12 rec_len: 12 name_len: 2 type= d name=..
+Inode: 15 rec_len: 1000 name_len: 5 type= f name=bfile
+
+</pre>
+
+
+
+</div>
+
+      <hr>
+   </div>
+
+    
+
+  </body>
+</html>
+
