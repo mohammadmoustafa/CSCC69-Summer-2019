@@ -41,5 +41,57 @@ int main(int argc, char **argv) {
     printf("    free inodes: %d\n", sb->s_free_inodes_count);
     printf("    used_dirs: %d\n", bg->bg_used_dirs_count);
 
+    /*********************************************************************/
+    /****************************** Task 2 *******************************/
+    /*********************************************************************/
+
+
+    /**
+     * Resource to use during this task:
+     * http://cs.smith.edu/~nhowe/262/oldlabs/ext2.html
+     */
+
+    /** Block Bitmap **/
+
+    printf("Block bitmap: ");
+
+    // Get the block bitmap
+    
+    // Loop through all the blocks
+    
+        // Get the corresponding byte of the bitmap
+        
+        // Print the bit
+        
+    printf("\n");
+
+    /** Inode Bitmap **/
+
+    printf("Inode bitmap: ");
+
+    // Get the inode bitmap
+
+    // The root inode is the second inode (having index of 1)
+
+    // loop through all the inodes
+
+        // get the corresponding byte
+
+        // print the bit
+
+        // Hint: It would be useful to keep track of the used inodes here
+
+    printf("\n\n");
+    
+    /** Print Inodes **/
+
+    printf("Inodes:\n");
+    
+    // loop through inodes
+
+        // get inode info
+
+        // print inode info
+
     return 0;
 }
